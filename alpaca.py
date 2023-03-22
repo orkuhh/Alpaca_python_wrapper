@@ -1,4 +1,4 @@
-from alpaca_llm import AlpacaLLM
+from CustomLLM import AlpacaLLM
 
 llm = AlpacaLLM(model_path="./ggml-alpaca-7b-native-q4.bin")
 
