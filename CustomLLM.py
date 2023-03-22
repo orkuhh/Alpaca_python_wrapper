@@ -15,10 +15,7 @@ class AlpacaLLM(LLM):
         return "alpaca"
     
     def _call(self, prompt: str, stop: Optional[List[str]] = None) -> str:
-        if platform.system() == 'Windows':
-            command = ["cmd.exe", "/c", "chat.exe", "-m", self.model_path]
-        else:
-            command = ["./chat", "-m", self.model_path]
+        command = f'{os.path.join(".", "chat")} -m "{self.model_path}"'
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
 
         print("Starting Alpaca process...")
@@ -26,13 +23,25 @@ class AlpacaLLM(LLM):
         # Wait until the model is ready to receive input
         while True:
             output = process.stderr.readline()
+            if not output:
+                break
             if b"== Running in chat mode. ==" in output:
+            
                 print("Alpaca process is ready.")
                 break
 
         input_text = f"{prompt}\n"
         process.stdin.write(input_text.encode())
         process.stdin.flush()
+
+        while process.poll() is None:
+            output = process.stderr.readline()
+            if not output:
+                continue
+            if b"Error" in output or b"ERROR" in output:
+                print(f"Error: {output.decode()}")
+            else:
+                print(output.decode())
 
         output, errors = process.communicate()
 
@@ -42,6 +51,7 @@ class AlpacaLLM(LLM):
             print(f"Errors: {errors.decode()}")
 
         return output.decode()
+
     
     @property
     def _identifying_params(self) -> Mapping[str, Any]:

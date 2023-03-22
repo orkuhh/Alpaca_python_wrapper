@@ -1,8 +1,7 @@
-import os
-from CustomLLM import AlpacaLLM
+from CustomLLM_test import ChatLLM
+import time
 
-model_path = os.path.join(".", "ggml-alpaca-7b-native-q4.bin")
-llm = AlpacaLLM(model_path=model_path)
-
-output = llm("Hello, how are you?")
-print(output)
+llm = ChatLLM(model_path="ggml-alpaca-7b-native-q4.bin")
+time.sleep(10)
+response = llm("Hello, how are you?")
+print(response)
